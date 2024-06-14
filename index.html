@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,26 +14,27 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            overflow: hidden; /* Prevents body from scrolling */
+            overflow: hidden;
+            /* Prevents body from scrolling */
         }
-        
+
         .container {
             background-color: #fff;
-            padding: 20px;
+            padding: 0px 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
             width: 90%;
             max-width: 400px;
             position: relative;
-            max-height: 90vh; /* Limits container height */
-            overflow-y: auto; /* Enables vertical scrolling */
+            max-height: 90vh;
+            /* Limits container height */
+            overflow-y: auto;
+            /* Enables vertical scrolling */
         }
-        
-        h1 {
-            margin-bottom: 20px;
-        }
-        
+
+
+
         button {
             background-color: #4CAF50;
             color: white;
@@ -41,39 +43,39 @@
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
-            margin: 10px;
         }
-        
+
         button:disabled {
             background-color: #ccc;
         }
-        
-        #startButton, #recordTimeButton {
+
+        #startButton,
+        #recordTimeButton {
             font-size: 24px;
             padding: 20px;
             width: 100%;
         }
-        
+
         #resetButton {
             background-color: #f44336;
             font-size: 12px;
             padding: 5px 10px;
-            position: absolute;
+            /* position: absolute;
             top: 10px;
-            right: 10px;
+            right: 0px; */
         }
-        
+
         #timerDisplay {
-            font-size: 24px;
-            margin: 20px 0;
+            font-size: 36px;
+            margin: 0px 0px 20px 0;
         }
-        
+
         ul {
             list-style-type: none;
             padding: 0;
             margin: 0;
         }
-        
+
         li {
             background-color: #eee;
             margin: 5px 0;
@@ -83,7 +85,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         li button {
             background-color: #f44336;
             border: none;
@@ -92,38 +94,63 @@
             font-size: 12px;
             cursor: pointer;
         }
+
+        #timesListContainer {
+            margin-top: 220px;
+        }
+
+        #fixedTimer {
+            position: fixed;
+            height: 220px;
+            width: 400px;
+            background-color: white;
+        }
+
+        #header {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <h1>Running Race Timer</h1>
-        <div id="timerDisplay">00:00:00</div>
-        <button id="startButton">Start Race</button>
-        <button id="recordTimeButton" style="display: none;">Record Finisher</button>
-        <button id="resetButton">Reset Race</button>
-        
-        <ul id="timesList"></ul>
+        <div id="fixedTimer">
+            <div id="header">
+                <h1>Running Race Timer</h1>
+                <div>
+                    <button id="resetButton">Reset</button>
+                </div>
+            </div>
+            <div id="timerDisplay">00:00:00</div>
+            <button id="startButton">Start Race</button>
+            <button id="recordTimeButton" style="display: none;">Record Finisher</button>
+        </div>
+        <div id="timesListContainer">
+            <ul id="timesList"></ul>
+        </div>
     </div>
     <script>
         let startTime;
         let timerInterval;
         let db;
         let finisherCount = 0;
-        
+
         document.addEventListener("DOMContentLoaded", () => {
             const startButton = document.getElementById('startButton');
             const recordTimeButton = document.getElementById('recordTimeButton');
             const resetButton = document.getElementById('resetButton');
             const timesList = document.getElementById('timesList');
             const timerDisplay = document.getElementById('timerDisplay');
-        
+
             startButton.addEventListener('click', startRace);
             recordTimeButton.addEventListener('click', recordFinisherTime);
             resetButton.addEventListener('click', resetRace);
-        
+
             initializeDB();
             loadSavedTimes();
-        
+
             if (localStorage.getItem('raceStarted')) {
                 startTime = parseInt(localStorage.getItem('startTime'));
                 finisherCount = parseInt(localStorage.getItem('finisherCount'));
@@ -132,7 +159,7 @@
                 recordTimeButton.disabled = false;
                 resumeTimer();
             }
-        
+
             function startRace() {
                 startTime = new Date().getTime();
                 localStorage.setItem('startTime', startTime);
@@ -145,7 +172,7 @@
                 saveTime('startTime', startTime);
                 startTimer();
             }
-        
+
             function recordFinisherTime() {
                 finisherCount++;
                 localStorage.setItem('finisherCount', finisherCount);
@@ -153,7 +180,7 @@
                 addTimeToList(finisherTime, finisherCount);
                 saveTime('finisherTime', finisherTime, finisherCount);
             }
-        
+
             function addTimeToList(time, place, save = true) {
                 const li = document.createElement('li');
                 li.textContent = `Place ${place}: ${formatTime(time)}`;
@@ -162,40 +189,40 @@
                 removeButton.addEventListener('click', () => removePlace(li, place));
                 li.appendChild(removeButton);
                 timesList.insertBefore(li, timesList.firstChild); // Change to insert at the top
-                if(save) saveFinisherTime(place, time);
+                if (save) saveFinisherTime(place, time);
             }
-        
+
             function removePlace(li, place) {
                 if (confirm("Are you sure you want to remove this place?")) {
                     timesList.removeChild(li);
                     removeFinisherTime(place);
                 }
             }
-        
+
             function formatTime(milliseconds) {
                 let totalSeconds = Math.floor(milliseconds / 1000);
                 let hours = Math.floor(totalSeconds / 3600);
                 let minutes = Math.floor((totalSeconds % 3600) / 60);
                 let seconds = totalSeconds % 60;
-        
+
                 return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
             }
-        
+
             function pad(number) {
                 return number < 10 ? '0' + number : number;
             }
-        
+
             function startTimer() {
                 timerInterval = setInterval(() => {
                     const elapsedTime = new Date().getTime() - startTime;
                     timerDisplay.textContent = formatTime(elapsedTime);
                 }, 1000);
             }
-        
+
             function resumeTimer() {
                 startTimer();
             }
-        
+
             function resetRace() {
                 if (confirm("Are you sure you want to reset the race?")) {
                     clearInterval(timerInterval);
@@ -211,25 +238,25 @@
                     finisherCount = 0;
                 }
             }
-        
+
             function initializeDB() {
                 const request = indexedDB.open('raceTimerDB', 1);
-        
+
                 request.onupgradeneeded = event => {
                     db = event.target.result;
                     const store = db.createObjectStore('times', { autoIncrement: true });
                     store.createIndex('type', 'type', { unique: false });
                 };
-        
+
                 request.onsuccess = event => {
                     db = event.target.result;
                 };
-        
+
                 request.onerror = event => {
                     console.error('IndexedDB error:', event.target.errorCode);
                 };
             }
-        
+
             function saveTime(type, time, place) {
                 const transaction = db.transaction(['times'], 'readwrite');
                 const store = transaction.objectStore('times');
@@ -241,19 +268,19 @@
                     console.error('Error saving time:', event.target.errorCode);
                 };
             }
-        
+
             function saveFinisherTime(place, time) {
                 let finisherTimes = JSON.parse(localStorage.getItem('finisherTimes')) || [];
                 finisherTimes.push({ place, time });
                 localStorage.setItem('finisherTimes', JSON.stringify(finisherTimes));
             }
-        
+
             function removeFinisherTime(place) {
                 let finisherTimes = JSON.parse(localStorage.getItem('finisherTimes')) || [];
                 finisherTimes = finisherTimes.filter(finisher => finisher.place !== place);
                 localStorage.setItem('finisherTimes', JSON.stringify(finisherTimes));
             }
-        
+
             function loadSavedTimes() {
                 timesList.innerHTML = ''; // Clear the list before loading
                 let finisherTimes = JSON.parse(localStorage.getItem('finisherTimes')) || [];
@@ -264,4 +291,5 @@
         });
     </script>
 </body>
+
 </html>
