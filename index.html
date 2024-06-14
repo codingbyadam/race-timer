@@ -32,8 +32,6 @@
             /* Enables vertical scrolling */
         }
 
-
-
         button {
             background-color: #4CAF50;
             color: white;
@@ -98,7 +96,7 @@
         #fixedTimer {
             position: fixed;
             height: 220px;
-            width:90%;
+            width: 90%;
             background-color: white;
         }
 
@@ -175,6 +173,7 @@
                 const finisherTime = new Date().getTime() - startTime;
                 addTimeToList(finisherTime, finisherCount);
                 saveTime('finisherTime', finisherTime, finisherCount);
+                navigator.vibrate(200); // Vibrate for 200 milliseconds
             }
 
             function addTimeToList(time, place, save = true) {
